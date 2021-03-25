@@ -4,6 +4,7 @@
 #include <iostream>
 #include <random>
 #include "util.h"
+#include "player.h"
 
 Maze::Maze(int width, int height, int window_width, int window_height): width(width), height(height),
                                                                         sprite(window_width, window_height)
@@ -119,7 +120,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
 
     auto x = (2 * cell_thickness + cell_size) * (float)c;
     auto y = -(2 * cell_thickness + cell_size) * (float)r;
-    cells.emplace_back(x, y);
+
+    std::vector<bool> sides(4, false);
 
     float t = cell_thickness * 2;
     int num_vertices = 0;
@@ -134,6 +136,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x - cell_size/2 - t, y + cell_size/2, 0.0f,}, {0.0f, 0.0f, 0.0f});
 
         num_vertices += 6;
+        sides[0] = true;
+        walls.emplace_back(x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p);
     }
 
     // right line
@@ -146,6 +150,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x + cell_size/2,  y - cell_size/2 - t, 0.0f}, {0.0f, 0.0f, 0.0f});
 
         num_vertices += 6;
+        sides[1] = true;
+        walls.emplace_back(x + cell_size/2, y + cell_size/2 + t);
     }
 
     // bottom line
@@ -158,6 +164,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x - cell_size/2 - t, y - cell_size/2 - cell_thickness - p, 0.0f,}, {0.0f, 0.0f, 0.0f});
 
         num_vertices += 6;
+        sides[2] = true;
+        walls.emplace_back(x - cell_size/2 - t, y - cell_size/2);
     }
 
     // left line
@@ -170,8 +178,11 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x - cell_size/2 - cell_thickness - p,  y - cell_size/2 - t, 0.0f}, {0.0f, 0.0f, 0.0f});
 
         num_vertices += 6;
+        sides[3] = true;
+        walls.emplace_back(x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t);
     }
 
+    cells.push_back({sides, {x, y}});
     return num_vertices;
 }
 
@@ -180,7 +191,7 @@ void Maze::render() const
     sprite.render();
 }
 
-std::pair<float, float> Maze::getRandomCell()
+std::pair<std::vector<bool>, std::pair<float, float>> Maze::getRandomCell()
 {
     std::mt19937_64 gen(random_device());
     std::uniform_int_distribution<int> random_dist(0, number_of_cells);
@@ -188,12 +199,71 @@ std::pair<float, float> Maze::getRandomCell()
     return cells[random_dist(gen)];
 }
 
-glm::vec3 Maze::getStartPosition()
+void Maze::findNextCell(Player &player)
 {
-    std::pair<float, float> pos = getRandomCell();
-    std::cout << pos.first << " " << pos.second << std::endl;
-    return glm::vec3(pos.first, pos.second, 0.0);
+    glm::vec3 pos = player.sprite.getPosition();
+    float cell_x = player.active_cell.second.first;
+    float cell_y = player.active_cell.second.second;
+    int cell_num = find(cells.begin(), cells.end(), player.active_cell) - cells.begin();
+
+//    std::cout << "Hereeeee" << cell_x << " " << cell_y << std::endl;
+
+//    for (int i=0; i<cells.size(); i++)
+//    {
+//        std::cout << cells[i].second.first << " " << cells[i].second.second << std::endl;
+//        if (cells[i].second.first == cell_x && cells[i].second.second == cell_y)
+//        {
+//            cell_num = i;
+//            break;
+//        }
+//    }
+
+    std::cout << "Cell = " << cell_num << std::endl;
+
+//    std::cout << pos.x << " " << pos.y << std::endl;
+
+
+    // no top wall
+    if (!player.active_cell.first[0])
+    {
+        std::cout << "No top" << cell_num - width << std::endl;
+        if (pos.y - player.height / 2 > cell_y + cell_size / 2)
+            player.active_cell = cells[cell_num - width];
+    }
+
+    // no bottom wall
+    if (!player.active_cell.first[2])
+    {
+        std::cout << "No bottom" << cell_num + width << std::endl;
+        if (pos.y + player.height / 2 < cell_y - cell_size / 2)
+            player.active_cell = cells[cell_num + width];
+    }
+
+    // no left wall
+    if (!player.active_cell.first[3])
+    {
+        std::cout << "No left" << cell_num - 1 << std::endl;
+        if (pos.x + player.width / 2 < cell_x - cell_size / 2)
+            player.active_cell = cells[cell_num - 1];
+    }
+
+    // no right wall
+    if (!player.active_cell.first[1])
+    {
+        std::cout << "No right" << cell_num + 1 << std::endl;
+        if (pos.x - player.width / 2 > cell_x + cell_size / 2)
+            player.active_cell = cells[cell_num + 1];
+    }
 }
+
+void Maze::checkWallCollision(Player &player)
+{
+    glm::vec3 pos = player.sprite.getPosition();
+
+    float p_x = pos.x + player.height / 2;
+    float p_y = pos.y - player.width / 2;
+}
+
 
 //void Maze::createCell(int r, int c)
 //{
