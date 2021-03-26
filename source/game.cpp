@@ -2,6 +2,7 @@
 #include "window.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/epsilon.hpp>
 #include <iostream>
 #include <algorithm>
 
@@ -10,7 +11,7 @@ Game::Game(int window_width, int window_height) :
         imposter(window_width, window_height, 2),
         button(window_width, window_height, {0.8, 0.0, 0.0}),
         maze(10, 10, window_width, window_height),
-        camera(glm::vec3(0.0, 0.0, 0.0), 4.5),
+        camera(glm::vec3(0.0, 0.0, 0.0), 20),
         shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag")
 {
     shader.use();
@@ -19,7 +20,10 @@ Game::Game(int window_width, int window_height) :
     sprite_list.push_back(&maze.sprite);
 //    sprite_list.push_back(&button.sprite);
 
-    player.moveTo(maze.getRandomPosition());
+    player.setInitialPosition(maze.getRandomCell());
+    imposter.setInitialPosition(maze.getRandomCell());
+    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+
     camera.moveAndFocus(player.sprite.getPosition());
 }
 
@@ -36,98 +40,88 @@ void Game::renderSprites()
     }
 }
 
+void Game::moveSprites(Window &window, float render_time)
+{
+    movePlayer(window, render_time);
+    moveImposter(render_time);
+}
+
+void Game::moveImposter(float render_time)
+{
+    imposter.move(maze.width, render_time);
+
+    glm::vec3 pos = imposter.sprite.getPosition();
+
+    // if imposter moves to position of next cell
+    glm::vec3 p = glm::epsilonEqual(imposter.sprite.getPosition(), imposter.next_cell.second, glm::vec3(0.05));
+//    std::cout << p.x << " " << p.y << std::endl;
+
+    if (p.x && p.y)
+    {
+//        std::cout << "Hereeee" << std::endl;
+//        std::cout << imposter.active_cell.second.x << " " << imposter.active_cell.second.y << std::endl;
+//        std::cout << imposter.next_cell.second.x << " " << imposter.next_cell.second.y << std::endl;
+        imposter.updateActiveCell(imposter.next_cell);
+    }
+//    imposter.updateActiveCell(maze.findNextCell(imposter.active_cell, imposter.sprite.getPosition()));
+
+    // if active cell of imposter changes, update path position
+
+    // find next cell of imposter
+//    maze.findShortestPath(imposter.active_cell, player.active_cell);
+}
+
 void Game::movePlayer(Window &window, float render_time)
 {
-//    if (glfwGetKey(window.window, GLFW_KEY_L) == GLFW_PRESS)
-//        player.sprite.translate('l', render_time), moved = true;
-//    else if (glfwGetKey(window.window, GLFW_KEY_J) == GLFW_PRESS)
-//        player.sprite.translate('j', render_time), moved = true;
-//    else if (glfwGetKey(window.window, GLFW_KEY_I) == GLFW_PRESS)
-//        player.sprite.translate('i', render_time), moved = true;
-//    else if (glfwGetKey(window.window, GLFW_KEY_K) == GLFW_PRESS)
-//        player.sprite.translate('k', render_time), moved = true;
-
-//    std::vector<int> collided_walls = player.checkWallCollision(maze.cell_size);
-//
-//    if (glfwGetKey(window.window, GLFW_KEY_L) == GLFW_PRESS)
-//    {
-//        if (find(collided_walls.begin(), collided_walls.end(), 1) == collided_walls.end())
-//            player.sprite.translate('l', render_time), moved = true;
-//    }
-//    else if (glfwGetKey(window.window, GLFW_KEY_J) == GLFW_PRESS)
-//    {
-//        if (find(collided_walls.begin(), collided_walls.end(), 3) == collided_walls.end())
-//            player.sprite.translate('j', render_time), moved = true;
-//    }
-//    else if (glfwGetKey(window.window, GLFW_KEY_I) == GLFW_PRESS)
-//    {
-//        if (find(collided_walls.begin(), collided_walls.end(), 0) == collided_walls.end())
-//            player.sprite.translate('i', render_time), moved = true;
-//    }
-//    else if (glfwGetKey(window.window, GLFW_KEY_K) == GLFW_PRESS)
-//    {
-//        if (find(collided_walls.begin(), collided_walls.end(), 2) == collided_walls.end())
-//            player.sprite.translate('k', render_time), moved = true;
-//    }
-
     bool collided = false;
-    bool moved = false;
+    char direction = 0;
+
+    bool (Game::*collision_function)(bounding_box &, bounding_box &) const;
+    collision_function = &Game::checkLeftCollision;
 
     if (glfwGetKey(window.window, GLFW_KEY_L) == GLFW_PRESS)
     {
-        for (auto &wall : maze.walls)
-        {
-            if (checkLeftCollision(wall, player.b_box))
-            {
-                collided = true;
-                break;
-            }
-        }
-        if (!collided)
-            player.translate('l', render_time), moved = true;
+        collision_function = &Game::checkLeftCollision;
+        direction = 'r';
     }
     else if (glfwGetKey(window.window, GLFW_KEY_J) == GLFW_PRESS)
     {
-        for (auto &wall : maze.walls)
-        {
-            if (checkRightCollision(wall, player.b_box))
-            {
-                collided = true;
-                break;
-            }
-        }
-        if (!collided)
-            player.translate('j', render_time), moved = true;
+        collision_function = &Game::checkRightCollision;
+        direction = 'l';
     }
     else if (glfwGetKey(window.window, GLFW_KEY_I) == GLFW_PRESS)
     {
-        for (auto &wall : maze.walls)
-        {
-            if (checkBottomCollision(wall, player.b_box))
-            {
-                collided = true;
-                break;
-            }
-        }
-        if (!collided)
-            player.translate('i', render_time), moved = true;
+        collision_function = &Game::checkBottomCollision;
+        direction = 'u';
     }
     else if (glfwGetKey(window.window, GLFW_KEY_K) == GLFW_PRESS)
     {
+        collision_function = &Game::checkTopCollision;
+        direction = 'd';
+    }
+
+    if (direction == 'r' || direction == 'l' || direction == 'u' || direction == 'd')
+    {
         for (auto &wall : maze.walls)
         {
-            if (checkTopCollision(wall, player.b_box))
+            if ((this->*collision_function)(wall, player.b_box))
             {
                 collided = true;
                 break;
             }
         }
         if (!collided)
-            player.translate('k', render_time), moved = true;
-    }
+        {
+            player.translate(direction, render_time);
+            glm::vec3 pos = player.sprite.getPosition();
 
-    if (moved)
-        camera.moveAndFocus(player.sprite.getPosition());
+            // if player active cell changes, update imposter path
+            if (player.updateActiveCell(maze.findNextCell(player.active_cell, pos)))
+                imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+
+            camera.moveAndFocus(pos);
+        }
+    }
 }
 
 // b2 with left of b1

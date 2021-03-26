@@ -6,17 +6,17 @@ MovableSprite::MovableSprite(int window_width, int window_height, float speed)
 
 }
 
-void MovableSprite::translate(int key, float render_time)
+void MovableSprite::translate(char direction, float render_time)
 {
     glm::vec3 translation_vector(0.0f);
 
-    if (key == 'l')
+    if (direction == 'r')
         translation_vector = glm::vec3(speed*render_time, 0.0, 0.0);
-    else if (key == 'j')
+    else if (direction == 'l')
         translation_vector = glm::vec3(-speed*render_time, 0.0, 0.0);
-    else if (key == 'i')
+    else if (direction == 'u')
         translation_vector = glm::vec3(0.0, speed*render_time, 0.0);
-    else if (key == 'k')
+    else if (direction == 'd')
         translation_vector = glm::vec3(0.0, -speed*render_time, 0.0);
 
     translation_matrix = glm::translate(translation_matrix, translation_vector);

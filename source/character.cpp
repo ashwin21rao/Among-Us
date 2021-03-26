@@ -16,7 +16,6 @@ std::pair<std::vector<float>, int> Character::generateVertexData()
     std::vector<float> vertices;
 
     float w, h, body_w, body_h, backpack_w, helmet_r;
-    float top_x, top_y;
     int num_vertices = 0;
     glm::mat4 trans_mat = glm::mat4(1.0f);
 
@@ -66,8 +65,7 @@ std::pair<std::vector<float>, int> Character::generateVertexData()
         num_vertices += 3;
     }
 
-    width = body_w + backpack_w, height = body_h + helmet_r;
-    b_box = {-body_w / 2 - backpack_w / 2, body_h / 2 + helmet_r / 2, width, height};
+    b_box = {-body_w / 2 - backpack_w / 2, body_h / 2 + helmet_r / 2, body_w + backpack_w, body_h + helmet_r};
 
     return {vertices, num_vertices};
 }
@@ -78,4 +76,20 @@ void Character::moveTo(glm::vec3 position)
 
     b_box.x = position.x - b_box.width / 2;
     b_box.y = position.y + b_box.height / 2;
+}
+
+void Character::setInitialPosition(std::pair<int, glm::vec3> cell)
+{
+    // set active cell and position
+    active_cell = cell;
+    moveTo(cell.second);
+}
+
+void Character::translate(char direction, float render_time)
+{
+    sprite.translate(direction, render_time);
+    glm::vec3 pos = sprite.getPosition();
+
+    b_box.x = pos.x - b_box.width / 2;
+    b_box.y = pos.y + b_box.height / 2;
 }

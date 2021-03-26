@@ -10,11 +10,12 @@ Player::Player(int window_width, int window_height, float speed)
 
 }
 
-void Player::translate(int key, float render_time)
+bool Player::updateActiveCell(std::pair<int, glm::vec3> new_cell)
 {
-    sprite.translate(key, render_time);
-    glm::vec3 pos = sprite.getPosition();
-
-    b_box.x = pos.x - b_box.width / 2;
-    b_box.y = pos.y + b_box.height / 2;
+    if (active_cell != new_cell)
+    {
+        active_cell = new_cell;
+        return true;
+    }
+    return false;
 }

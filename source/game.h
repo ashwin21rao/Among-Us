@@ -24,10 +24,13 @@ public:
     std::vector<Sprite*> sprite_list;
     Button button;
 
+    void moveSprites(Window &window, float render_time);
     void renderSprites();
-    void movePlayer(Window &window, float render_time);
 
 private:
+    void movePlayer(Window &window, float render_time);
+    void moveImposter(float render_time);
+
     bool checkLeftCollision(bounding_box &b1, bounding_box &b2) const;
     bool checkRightCollision(bounding_box &b1, bounding_box &b2) const;
     bool checkTopCollision(bounding_box &b1, bounding_box &b2) const;

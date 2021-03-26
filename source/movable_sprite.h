@@ -6,7 +6,7 @@ class MovableSprite: public Sprite
 {
 public:
     MovableSprite(int window_width, int window_height, float speed=1.5);
-    void translate(int key, float render_time);
+    void translate(char direction, float render_time);
     float speed;
 };
 

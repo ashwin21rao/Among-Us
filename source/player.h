@@ -7,8 +7,7 @@ class Player : public Character
 {
 public:
     Player(int window_width, int window_height, float speed=1.5);
-
-    void translate(int key, float render_time);
+    bool updateActiveCell(std::pair<int, glm::vec3> new_cell);
 };
 
 

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <queue>
 #include "util.h"
 #include "player.h"
 
@@ -95,6 +96,94 @@ void Maze::generateMazeGraph()
 //            std::cout << node << " ";
 //        std::cout << std::endl;
 //    }
+
+    // todo: add random edges
+    std::uniform_int_distribution<int> random_cell(0, number_of_cells);
+    int i = 0;
+    while (i < 5)
+    {
+        int cell = random_cell(gen);
+        std::uniform_int_distribution<int> random_edge(0, 3);
+
+        // top
+        if (random_edge(gen) == 0 && cell >= width)
+        {
+            mazeGraph[cell].push_back(cell - width);
+            mazeGraph[cell - width].push_back(cell);
+            i++;
+
+        }
+
+        // right
+        if (random_edge(gen) == 1 && (cell + 1) % width != 0)
+        {
+            mazeGraph[cell].push_back(cell + 1);
+            mazeGraph[cell + 1].push_back(cell);
+            i++;
+        }
+
+        // bottom
+        if (random_edge(gen) == 2 && cell < number_of_cells - width)
+        {
+            mazeGraph[cell].push_back(cell + width);
+            mazeGraph[cell + width].push_back(cell);
+            i++;
+        }
+
+        // left
+        if (random_edge(gen) == 3 && cell % width != 0)
+        {
+            mazeGraph[cell].push_back(cell - 1);
+            mazeGraph[cell - 1].push_back(cell);
+            i++;
+        }
+    }
+}
+
+std::vector<std::pair<int, glm::vec3>> Maze::findShortestPath(int start, int finish)
+{
+    std::queue<int> q;
+    std::vector<bool> visited(number_of_cells, false);
+    std::vector<int> prev(number_of_cells);
+
+    std::vector<std::pair<int, glm::vec3>> path;
+
+    visited[start] = true;
+    q.push(start);
+    while (!q.empty())
+    {
+        int node = q.front();
+        if (node == finish)
+            break;
+
+        q.pop();
+        for (auto next : mazeGraph[node])
+        {
+            if (!visited[next])
+            {
+                visited[next] = true;
+                prev[next] = node;
+                q.push(next);
+            }
+        }
+    }
+
+    int node = finish;
+    while(node != start)
+    {
+        path.push_back(cells[node]);
+        node = prev[node];
+    }
+    path.push_back(cells[start]);
+
+    std::reverse(path.begin(), path.end());
+
+    std::cout << "Hereeeeee" << std::endl;
+    for (auto i : path)
+        std::cout << i.first << " ";
+    std::cout << std::endl;
+
+    return path;
 }
 
 std::pair<std::vector<float>, int> Maze::generateVertexData()
@@ -121,9 +210,6 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
     auto x = (2 * cell_thickness + cell_size) * (float)c;
     auto y = -(2 * cell_thickness + cell_size) * (float)r;
 
-    std::vector<bool> sides(4, false);
-    std::vector<bounding_box> cell_walls(4);
-
     float t = cell_thickness * 2;
     int num_vertices = 0;
 
@@ -137,7 +223,6 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x - cell_size/2 - t, y + cell_size/2, 0.0f,}, wall_color);
 
         num_vertices += 6;
-        sides[0] = true;
         walls.push_back({x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p,
                          cell_size + 2 * t, cell_thickness + p});
     }
@@ -152,7 +237,6 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x + cell_size/2,  y - cell_size/2 - t, 0.0f}, wall_color);
 
         num_vertices += 6;
-        sides[1] = true;
         walls.push_back({x + cell_size/2, y + cell_size/2 + t, cell_thickness + p, cell_size + 2 * t});
     }
 
@@ -166,7 +250,6 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x - cell_size/2 - t, y - cell_size/2 - cell_thickness - p, 0.0f,}, wall_color);
 
         num_vertices += 6;
-        sides[2] = true;
         walls.push_back({x - cell_size/2 - t, y - cell_size/2, cell_size + 2 * t, cell_thickness + p});
     }
 
@@ -180,31 +263,39 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x - cell_size/2 - cell_thickness - p,  y - cell_size/2 - t, 0.0f}, wall_color);
 
         num_vertices += 6;
-        sides[3] = true;
         walls.push_back({x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t,
                          cell_thickness + p, cell_size + 2 * t});
 
     }
 
-    cells.push_back({sides, {x, y}});
+    cells.emplace_back(vertex_num, glm::vec3(x, y, 0.0));
     return num_vertices;
 }
 
-void Maze::render() const
-{
-    sprite.render();
-}
-
-std::pair<std::vector<bool>, std::pair<float, float>> Maze::getRandomCell()
+std::pair<int, glm::vec3> Maze::getRandomCell()
 {
     std::mt19937_64 gen(random_device());
-    std::uniform_int_distribution<int> random_dist(0, number_of_cells);
+    std::uniform_int_distribution<int> random_cell(0, number_of_cells);
 
-    return cells[random_dist(gen)];
+    return cells[random_cell(gen)];
 }
 
-glm::vec3 Maze::getRandomPosition()
+std::pair<int, glm::vec3> Maze::findNextCell(std::pair<int, glm::vec3> active_cell, glm::vec3 position) const
 {
-    std::pair<std::vector<bool>, std::pair<float, float>> cell = getRandomCell();
-    return glm::vec3(cell.second.first, cell.second.second, 0.0);
+    glm::vec3 cell_pos = active_cell.second;
+
+    // move to top cell
+    if (position.y > cell_pos.y + cell_size / 2)
+        return cells[active_cell.first - width];
+    // move to bottom cell
+    if (position.y < cell_pos.y - cell_size / 2)
+        return cells[active_cell.first + width];
+    // move to right cell
+    if (position.x > cell_pos.x + cell_size / 2)
+        return cells[active_cell.first + 1];
+    // move to left cell
+    if (position.x < cell_pos.x - cell_size / 2)
+        return cells[active_cell.first - 1];
+
+    return active_cell;
 }
