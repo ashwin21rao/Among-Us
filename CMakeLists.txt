@@ -10,7 +10,7 @@ set(SOURCES "${SRC_DIR}/main.cpp" "${SRC_DIR}/shader.cpp" "${SRC_DIR}/shader.h"
             "${SRC_DIR}/camera.cpp" "${SRC_DIR}/camera.h" "${SRC_DIR}/window.cpp" "${SRC_DIR}/window.h"
             "${SRC_DIR}/maze.cpp" "${SRC_DIR}/maze.h" "${SRC_DIR}/sprite.cpp" "${SRC_DIR}/sprite.h"
             source/player.cpp source/player.h source/movable_sprite.cpp source/movable_sprite.h
-            source/game.cpp source/game.h)
+            source/game.cpp source/game.h source/button.cpp source/button.h source/character.cpp source/character.h source/imposter.cpp source/imposter.h)
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})

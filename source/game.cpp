@@ -6,14 +6,18 @@
 #include <algorithm>
 
 Game::Game(int window_width, int window_height) :
-        player(window_width, window_height),
+        player(window_width, window_height, 2),
+        imposter(window_width, window_height, 2),
+        button(window_width, window_height, {0.8, 0.0, 0.0}),
         maze(10, 10, window_width, window_height),
-        camera(glm::vec3(0.0, 0.0, 0.0), 2),
+        camera(glm::vec3(0.0, 0.0, 0.0), 4.5),
         shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag")
 {
     shader.use();
     sprite_list.push_back(&player.sprite);
+    sprite_list.push_back(&imposter.sprite);
     sprite_list.push_back(&maze.sprite);
+//    sprite_list.push_back(&button.sprite);
 
     player.moveTo(maze.getRandomPosition());
     camera.moveAndFocus(player.sprite.getPosition());

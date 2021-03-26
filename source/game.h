@@ -7,18 +7,22 @@
 #include "sprite.h"
 #include "movable_sprite.h"
 #include "player.h"
+#include "imposter.h"
 #include "window.h"
 #include "util.h"
+#include "button.h"
 
 class Game
 {
 public:
     Game(int window_width, int window_height);
     Player player;
+    Imposter imposter;
     Maze maze;
     Camera camera;
     Shader shader;
     std::vector<Sprite*> sprite_list;
+    Button button;
 
     void renderSprites();
     void movePlayer(Window &window, float render_time);

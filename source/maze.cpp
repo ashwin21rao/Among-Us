@@ -134,7 +134,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p, 0.0f,
                                                 x + cell_size/2 + t, y + cell_size/2 + cell_thickness + p, 0.0f,
                                                 x + cell_size/2 + t, y + cell_size/2, 0.0f,
-                                                x - cell_size/2 - t, y + cell_size/2, 0.0f,}, {0.0f, 0.0f, 0.0f});
+                                                x - cell_size/2 - t, y + cell_size/2, 0.0f,}, wall_color);
 
         num_vertices += 6;
         sides[0] = true;
@@ -149,7 +149,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x + cell_size/2, y + cell_size/2 + t, 0.0f,
                                                 x + cell_size/2 + cell_thickness + p, y + cell_size/2 + t, 0.0f,
                                                 x + cell_size/2 + cell_thickness + p,  y - cell_size/2 - t, 0.0f,
-                                                x + cell_size/2,  y - cell_size/2 - t, 0.0f}, {0.0f, 0.0f, 0.0f});
+                                                x + cell_size/2,  y - cell_size/2 - t, 0.0f}, wall_color);
 
         num_vertices += 6;
         sides[1] = true;
@@ -163,7 +163,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x - cell_size/2 - t, y - cell_size/2, 0.0f,
                                                 x + cell_size/2 + t, y - cell_size/2, 0.0f,
                                                 x + cell_size/2 + t, y - cell_size/2 - cell_thickness - p, 0.0f,
-                                                x - cell_size/2 - t, y - cell_size/2 - cell_thickness - p, 0.0f,}, {0.0f, 0.0f, 0.0f});
+                                                x - cell_size/2 - t, y - cell_size/2 - cell_thickness - p, 0.0f,}, wall_color);
 
         num_vertices += 6;
         sides[2] = true;
@@ -177,7 +177,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t, 0.0f,
                                                 x - cell_size/2, y + cell_size/2 + t, 0.0f,
                                                 x - cell_size/2,  y - cell_size/2 - t, 0.0f,
-                                                x - cell_size/2 - cell_thickness - p,  y - cell_size/2 - t, 0.0f}, {0.0f, 0.0f, 0.0f});
+                                                x - cell_size/2 - cell_thickness - p,  y - cell_size/2 - t, 0.0f}, wall_color);
 
         num_vertices += 6;
         sides[3] = true;

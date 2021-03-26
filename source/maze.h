@@ -37,6 +37,7 @@ private:
 
     // cells of maze
     std::vector<std::pair<std::vector<bool>, std::pair<float, float>>> cells;
+    std::vector<float> wall_color = {0.25, 0.25, 0.25};
 
     // generating maze graph
     int findRoot(int node, std::vector<int> &parent);
