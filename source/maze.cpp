@@ -122,6 +122,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
     auto y = -(2 * cell_thickness + cell_size) * (float)r;
 
     std::vector<bool> sides(4, false);
+    std::vector<bounding_box> cell_walls(4);
 
     float t = cell_thickness * 2;
     int num_vertices = 0;
@@ -137,7 +138,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
 
         num_vertices += 6;
         sides[0] = true;
-        walls.emplace_back(x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p);
+        walls.push_back({x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p,
+                         cell_size + 2 * t, cell_thickness + p});
     }
 
     // right line
@@ -151,7 +153,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
 
         num_vertices += 6;
         sides[1] = true;
-        walls.emplace_back(x + cell_size/2, y + cell_size/2 + t);
+        walls.push_back({x + cell_size/2, y + cell_size/2 + t, cell_thickness + p, cell_size + 2 * t});
     }
 
     // bottom line
@@ -165,7 +167,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
 
         num_vertices += 6;
         sides[2] = true;
-        walls.emplace_back(x - cell_size/2 - t, y - cell_size/2);
+        walls.push_back({x - cell_size/2 - t, y - cell_size/2, cell_size + 2 * t, cell_thickness + p});
     }
 
     // left line
@@ -179,7 +181,9 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
 
         num_vertices += 6;
         sides[3] = true;
-        walls.emplace_back(x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t);
+        walls.push_back({x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t,
+                         cell_thickness + p, cell_size + 2 * t});
+
     }
 
     cells.push_back({sides, {x, y}});
@@ -199,123 +203,8 @@ std::pair<std::vector<bool>, std::pair<float, float>> Maze::getRandomCell()
     return cells[random_dist(gen)];
 }
 
-void Maze::findNextCell(Player &player)
+glm::vec3 Maze::getRandomPosition()
 {
-    glm::vec3 pos = player.sprite.getPosition();
-    float cell_x = player.active_cell.second.first;
-    float cell_y = player.active_cell.second.second;
-    int cell_num = find(cells.begin(), cells.end(), player.active_cell) - cells.begin();
-
-//    std::cout << "Hereeeee" << cell_x << " " << cell_y << std::endl;
-
-//    for (int i=0; i<cells.size(); i++)
-//    {
-//        std::cout << cells[i].second.first << " " << cells[i].second.second << std::endl;
-//        if (cells[i].second.first == cell_x && cells[i].second.second == cell_y)
-//        {
-//            cell_num = i;
-//            break;
-//        }
-//    }
-
-    std::cout << "Cell = " << cell_num << std::endl;
-
-//    std::cout << pos.x << " " << pos.y << std::endl;
-
-
-    // no top wall
-    if (!player.active_cell.first[0])
-    {
-        std::cout << "No top" << cell_num - width << std::endl;
-        if (pos.y - player.height / 2 > cell_y + cell_size / 2)
-            player.active_cell = cells[cell_num - width];
-    }
-
-    // no bottom wall
-    if (!player.active_cell.first[2])
-    {
-        std::cout << "No bottom" << cell_num + width << std::endl;
-        if (pos.y + player.height / 2 < cell_y - cell_size / 2)
-            player.active_cell = cells[cell_num + width];
-    }
-
-    // no left wall
-    if (!player.active_cell.first[3])
-    {
-        std::cout << "No left" << cell_num - 1 << std::endl;
-        if (pos.x + player.width / 2 < cell_x - cell_size / 2)
-            player.active_cell = cells[cell_num - 1];
-    }
-
-    // no right wall
-    if (!player.active_cell.first[1])
-    {
-        std::cout << "No right" << cell_num + 1 << std::endl;
-        if (pos.x - player.width / 2 > cell_x + cell_size / 2)
-            player.active_cell = cells[cell_num + 1];
-    }
+    std::pair<std::vector<bool>, std::pair<float, float>> cell = getRandomCell();
+    return glm::vec3(cell.second.first, cell.second.second, 0.0);
 }
-
-void Maze::checkWallCollision(Player &player)
-{
-    glm::vec3 pos = player.sprite.getPosition();
-
-    float p_x = pos.x + player.height / 2;
-    float p_y = pos.y - player.width / 2;
-}
-
-
-//void Maze::createCell(int r, int c)
-//{
-//    int vertex_num = width * r + c;
-//    std::vector<int> adj_cells = mazeGraph[vertex_num];
-//    auto x = (float)c, y = -(float)r;
-//
-//    // top line
-//    if (std::find(adj_cells.begin(), adj_cells.end(), vertex_num - width) == adj_cells.end())
-//    {
-//        generateTrianglesFromPolygon(vertices, {x, y, 0.0f,
-//                                                x + cell_size, y, 0.0f,
-//                                                x + cell_size,  y - cell_thickness, 0.0f,
-//                                                x,  y - cell_thickness, 0.0f}, {0.0f, 0.0f, 0.0f});
-//
-//        vertices_data.first += 6;
-//        std::cout << "top" << std::endl;
-//    }
-//
-//    // right line
-//    if (find(adj_cells.begin(), adj_cells.end(), vertex_num + 1) == adj_cells.end())
-//    {
-//        generateTrianglesFromPolygon(vertices, {x + cell_size - cell_thickness, y, 0.0f,
-//                                                x + cell_size, y, 0.0f,
-//                                                x + cell_size,  y - cell_size, 0.0f,
-//                                                x + cell_size - cell_thickness,  y - cell_size, 0.0f}, {0.0f, 0.0f, 0.0f});
-//
-//        vertices_data.first += 6;
-//        std::cout << "right" << std::endl;
-//    }
-//
-//    // bottom line
-//    if (find(adj_cells.begin(), adj_cells.end(), vertex_num + width) == adj_cells.end())
-//    {
-//        generateTrianglesFromPolygon(vertices, {x, y - cell_size + cell_thickness, 0.0f,
-//                                                x + cell_size, y - cell_size + cell_thickness, 0.0f,
-//                                                x + cell_size,  y - cell_size, 0.0f,
-//                                                x,  y - cell_size, 0.0f}, {0.0f, 0.0f, 0.0f});
-//
-//        vertices_data.first += 6;
-//        std::cout << "bottom" << std::endl;
-//    }
-//
-//    // left line
-//    if (find(adj_cells.begin(), adj_cells.end(), vertex_num - 1) == adj_cells.end())
-//    {
-//        generateTrianglesFromPolygon(vertices, {x, y, 0.0f,
-//                                                x + cell_thickness, y, 0.0f,
-//                                                x + cell_thickness,  y - cell_size, 0.0f,
-//                                                x,  y - cell_size, 0.0f}, {0.0f, 0.0f, 0.0f});
-//
-//        vertices_data.first += 6;
-//        std::cout << "left" << std::endl;
-//    }
-//}

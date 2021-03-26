@@ -4,6 +4,7 @@
 #include <random>
 #include "sprite.h"
 #include "player.h"
+#include "util.h"
 
 class Maze
 {
@@ -11,15 +12,18 @@ public:
     Maze(int width, int height, int window_width, int window_height);
     Sprite sprite;
 
+    // dimensions of maze cells
     float cell_size, cell_thickness;
+
+    // walls of maze
+    std::vector<bounding_box> walls;
 
     // render maze
     void render() const;
 
     // other functions
     std::pair<std::vector<bool>, std::pair<float, float>> getRandomCell();
-    void findNextCell(Player &player);
-    void checkWallCollision(Player &player);
+    glm::vec3 getRandomPosition();
 
 private:
     int width, height;
@@ -33,9 +37,6 @@ private:
 
     // cells of maze
     std::vector<std::pair<std::vector<bool>, std::pair<float, float>>> cells;
-
-    // walls of maze
-    std::vector<glm::vec2> walls;
 
     // generating maze graph
     int findRoot(int node, std::vector<int> &parent);

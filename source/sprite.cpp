@@ -10,7 +10,7 @@ Sprite::Sprite(int window_width, int window_height)
     initial_position = glm::vec3(0.0);
 
     model_matrix = translation_matrix * rotation_matrix * scaling_matrix;
-    view_matrix = glm::translate(view_matrix, glm::vec3(0.0, 0.0, -5.0));
+    view_matrix = glm::mat4(1.0f);
     projection_matrix = glm::perspective((float) glm::radians(45.0f), (float) window_width/(float) window_height, 0.1f,
                                          100.0f);
 //    projection_matrix = glm::ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
