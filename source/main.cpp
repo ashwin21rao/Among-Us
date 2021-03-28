@@ -4,7 +4,6 @@
 #include "game.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <iostream>
 
 void processInput(Window &window, Game &game)
 {
@@ -29,9 +28,6 @@ int main()
     // create game object
     Game game(window.width, window.height);
 
-    // create TextHandler object
-//    TextHandler th(window.width, window.height);
-
     // to keep track of time taken for each render
     float last_frame_timestamp = 0.0, current_frame_timestamp;
 
@@ -55,7 +51,9 @@ int main()
         // render sprites
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         game.renderSprites();
-//        th.renderText("Hello how are you today", 0, 0, 1.0, glm::vec3(0.0, 0.6, 0.4));
+
+        // tick game timer
+        game.tick();
 
         // update display
         glfwSwapBuffers(window.window);

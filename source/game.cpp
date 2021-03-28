@@ -10,13 +10,13 @@ Game::Game(int window_width, int window_height) :
         player(window_width, window_height, 3),
         imposter(window_width, window_height, 2),
         maze(10, 10, window_width, window_height),
-        camera(glm::vec3(0.0, 0.0, 0.0), 20),
+        camera(glm::vec3(0.0, 0.0, 0.0), 4),
         shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag"),
+        th(window_width, window_height),
         window_width(window_width), window_height(window_height),
-        number_of_coins(5), number_of_bombs(5)
+        number_of_coins(5), number_of_bombs(5),
+        start_time(glfwGetTime()), total_time(60)
 {
-    shader.use();
-
     // initialize buttons
     buttons = {Button(window_width, window_height), Button(window_width, window_height)};
     buttons[0].moveTo(maze.getRandomPosition());
@@ -41,6 +41,13 @@ bool Game::gameWon() const
     return game_won;
 }
 
+void Game::tick()
+{
+    time_elapsed = glfwGetTime() - start_time;
+    if (time_elapsed > total_time)
+        game_over = true;
+}
+
 void Game::renderSprites()
 {
     std::vector<Sprite*> sprite_list = {&maze.sprite, &player.sprite};
@@ -54,6 +61,8 @@ void Game::renderSprites()
     for (auto &bomb : bombs)
         sprite_list.push_back(&bomb.sprite);
 
+    shader.use();
+
     for (auto &sprite : sprite_list)
     {
         // load transformation matrix of sprite into shader
@@ -63,6 +72,18 @@ void Game::renderSprites()
         // render sprite
         sprite->render();
     }
+
+    displayText();
+}
+
+void Game::displayText()
+{
+    th.renderText("Score: " + std::to_string(score), 5, (float)window_height - 25, 0.5, glm::vec3(0.0, 0.0, 0.0));
+    th.renderText("Time remaining: " + std::to_string((int)(total_time - time_elapsed)),
+                  5, (float)window_height - 50, 0.5, glm::vec3(0.0, 0.0, 0.0));
+    th.renderText("Tasks left: " + std::to_string(!buttons[0].isPressed() + !buttons[1].isPressed()),
+                  5, (float)window_height - 75, 0.5, glm::vec3(0.0, 0.0, 0.0));
+    th.renderText("Central lighting: On", 5, (float)window_height - 100, 0.5, glm::vec3(0.0, 0.0, 0.0));
 }
 
 void Game::moveSprites(Window &window, float render_time)

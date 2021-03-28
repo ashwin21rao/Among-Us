@@ -13,6 +13,7 @@
 #include "button.h"
 #include "coin.h"
 #include "bomb.h"
+#include "text_handler.h"
 
 class Game
 {
@@ -27,9 +28,11 @@ public:
 
     Camera camera;
     Shader shader;
+    TextHandler th;
 
     void moveSprites(Window &window, float render_time);
     void renderSprites();
+    void tick();
     void handleCollisions();
     bool gameOver() const;
     bool gameWon() const;
@@ -37,6 +40,7 @@ public:
 private:
     void movePlayer(Window &window, float render_time);
     void moveImposter(float render_time);
+    void displayText();
 
     bool checkLeftCollision(bounding_box &b1, bounding_box &b2) const;
     bool checkRightCollision(bounding_box &b1, bounding_box &b2) const;
@@ -49,6 +53,7 @@ private:
     int window_width, window_height;
 
     int score = 0;
+    double start_time, time_elapsed, total_time;
     bool game_over = false;
     bool game_won = false;
 };
