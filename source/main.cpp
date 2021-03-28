@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include "window.h"
 #include "game.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <iostream>
 
 void processInput(Window &window, Game &game)
 {
@@ -15,8 +18,10 @@ int main()
     Window window(1200, 800);
     window.initialize();
 
-    // enable depth testing
+    // enable opengl options
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // set background color
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -24,12 +29,18 @@ int main()
     // create game object
     Game game(window.width, window.height);
 
+    // create TextHandler object
+//    TextHandler th(window.width, window.height);
+
     // to keep track of time taken for each render
     float last_frame_timestamp = 0.0, current_frame_timestamp;
 
     // render loop
-    while (!glfwWindowShouldClose(window.window) && !game.gameOver() && !game.gameWon())
+    while (!glfwWindowShouldClose(window.window))
     {
+        if (game.gameOver() || game.gameWon())
+            break;
+
         current_frame_timestamp = (float)glfwGetTime();
 
         // check for events
@@ -44,6 +55,7 @@ int main()
         // render sprites
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         game.renderSprites();
+//        th.renderText("Hello how are you today", 0, 0, 1.0, glm::vec3(0.0, 0.6, 0.4));
 
         // update display
         glfwSwapBuffers(window.window);

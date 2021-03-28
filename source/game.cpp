@@ -152,7 +152,6 @@ void Game::movePlayer(Window &window, float render_time)
                     game_won = true;
             }
 
-
             camera.moveAndFocus(pos);
         }
     }
