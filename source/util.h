@@ -13,4 +13,7 @@ struct bounding_box {
 void generateTrianglesFromPolygon(std::vector<float> &vertices,
                                   std::vector<float> points, std::vector<float> color);
 
+int generateCircle(float radius, float center_x, float center_y,
+                    std::vector<float> &vertices, std::vector<float> color, int num_points = 26, bool semicircle=false);
+
 #endif

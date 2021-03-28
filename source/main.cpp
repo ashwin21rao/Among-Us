@@ -28,7 +28,7 @@ int main()
     float last_frame_timestamp = 0.0, current_frame_timestamp;
 
     // render loop
-    while (!glfwWindowShouldClose(window.window))
+    while (!glfwWindowShouldClose(window.window) && !game.isGameOver())
     {
         current_frame_timestamp = (float)glfwGetTime();
 
@@ -38,10 +38,11 @@ int main()
         // move sprites
         game.moveSprites(window, current_frame_timestamp - last_frame_timestamp);
 
-        // rendering commands
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // check for collisions
+        game.handleCollisions();
 
         // render sprites
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         game.renderSprites();
 
         // update display

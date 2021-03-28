@@ -97,10 +97,10 @@ void Maze::generateMazeGraph()
 //        std::cout << std::endl;
 //    }
 
-    // todo: add random edges
+    // add random edges
     std::uniform_int_distribution<int> random_cell(0, number_of_cells);
     int i = 0;
-    while (i < 5)
+    while (i < 10)
     {
         int cell = random_cell(gen);
         std::uniform_int_distribution<int> random_edge(0, 3);
@@ -108,34 +108,45 @@ void Maze::generateMazeGraph()
         // top
         if (random_edge(gen) == 0 && cell >= width)
         {
-            mazeGraph[cell].push_back(cell - width);
-            mazeGraph[cell - width].push_back(cell);
-            i++;
-
+            if (find(mazeGraph[cell].begin(), mazeGraph[cell].end(), cell - width) == mazeGraph[cell].end())
+            {
+                mazeGraph[cell].push_back(cell - width);
+                mazeGraph[cell - width].push_back(cell);
+                i++;
+            }
         }
 
         // right
         if (random_edge(gen) == 1 && (cell + 1) % width != 0)
         {
-            mazeGraph[cell].push_back(cell + 1);
-            mazeGraph[cell + 1].push_back(cell);
-            i++;
+            if (find(mazeGraph[cell].begin(), mazeGraph[cell].end(), cell + 1) == mazeGraph[cell].end())
+            {
+                mazeGraph[cell].push_back(cell + 1);
+                mazeGraph[cell + 1].push_back(cell);
+                i++;
+            }
         }
 
         // bottom
         if (random_edge(gen) == 2 && cell < number_of_cells - width)
         {
-            mazeGraph[cell].push_back(cell + width);
-            mazeGraph[cell + width].push_back(cell);
-            i++;
+            if (find(mazeGraph[cell].begin(), mazeGraph[cell].end(), cell + width) == mazeGraph[cell].end())
+            {
+                mazeGraph[cell].push_back(cell + width);
+                mazeGraph[cell + width].push_back(cell);
+                i++;
+            }
         }
 
         // left
         if (random_edge(gen) == 3 && cell % width != 0)
         {
-            mazeGraph[cell].push_back(cell - 1);
-            mazeGraph[cell - 1].push_back(cell);
-            i++;
+            if (find(mazeGraph[cell].begin(), mazeGraph[cell].end(), cell - 1) == mazeGraph[cell].end())
+            {
+                mazeGraph[cell].push_back(cell - 1);
+                mazeGraph[cell - 1].push_back(cell);
+                i++;
+            }
         }
     }
 }
@@ -278,6 +289,11 @@ std::pair<int, glm::vec3> Maze::getRandomCell()
     std::uniform_int_distribution<int> random_cell(0, number_of_cells);
 
     return cells[random_cell(gen)];
+}
+
+glm::vec3 Maze::getRandomPosition()
+{
+    return getRandomCell().second;
 }
 
 std::pair<int, glm::vec3> Maze::findNextCell(std::pair<int, glm::vec3> active_cell, glm::vec3 position) const

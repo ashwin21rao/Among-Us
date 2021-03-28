@@ -34,3 +34,13 @@ void Imposter::updateActiveCell(std::pair<int, glm::vec3> new_cell)
         next_cell = path_to_player[current_pos + 1];
     }
 }
+
+void Imposter::kill()
+{
+    dead = true;
+}
+
+bool Imposter::isAlive() const
+{
+    return !dead;
+}

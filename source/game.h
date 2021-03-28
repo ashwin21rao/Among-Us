@@ -11,6 +11,8 @@
 #include "window.h"
 #include "util.h"
 #include "button.h"
+#include "coin.h"
+#include "bomb.h"
 
 class Game
 {
@@ -19,13 +21,17 @@ public:
     Player player;
     Imposter imposter;
     Maze maze;
+    std::vector<Button> buttons;
+    std::vector<Coin> coins;
+    std::vector<Bomb> bombs;
+
     Camera camera;
     Shader shader;
-    std::vector<Sprite*> sprite_list;
-    Button button;
 
     void moveSprites(Window &window, float render_time);
     void renderSprites();
+    void handleCollisions();
+    bool isGameOver() const;
 
 private:
     void movePlayer(Window &window, float render_time);
@@ -35,8 +41,14 @@ private:
     bool checkRightCollision(bounding_box &b1, bounding_box &b2) const;
     bool checkTopCollision(bounding_box &b1, bounding_box &b2) const;
     bool checkBottomCollision(bounding_box &b1, bounding_box &b2) const;
+    static bool checkCollision(bounding_box &b1, bounding_box &b2) ;
 
     float collision_threshold = 0.03;
+    int number_of_coins, number_of_bombs;
+    int window_width, window_height;
+
+    int score = 0;
+    bool game_over = false;
 };
 
 #endif

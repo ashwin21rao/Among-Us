@@ -47,23 +47,8 @@ std::pair<std::vector<float>, int> Character::generateVertexData()
     num_vertices += 6;
 
     // semicircular head
-    float r = body_w / 2;
-    float x = r, y = body_h / 2;
-    helmet_r = r;
-
-    int num_points = 26;
-    for (int i=1; i<=num_points / 2; i++)
-    {
-        float x1 = r * (float)cos(i * 2 * M_PI / num_points);
-        float y1 = r * (float)sin(i * 2 * M_PI / num_points) + body_h / 2;
-
-        generateTrianglesFromPolygon(vertices, {x, y, 0.0f,
-                                                x1, y1, 0.0f,
-                                                0.0f, body_h / 2, 0.0f}, colors[0]);
-
-        x = x1, y = y1;
-        num_vertices += 3;
-    }
+    helmet_r = body_w / 2;
+    num_vertices += generateCircle(body_w / 2, 0, body_h / 2, vertices, colors[0]);
 
     b_box = {-body_w / 2 - backpack_w / 2, body_h / 2 + helmet_r / 2, body_w + backpack_w, body_h + helmet_r};
 

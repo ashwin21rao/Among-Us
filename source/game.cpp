@@ -7,28 +7,48 @@
 #include <algorithm>
 
 Game::Game(int window_width, int window_height) :
-        player(window_width, window_height, 2),
+        player(window_width, window_height, 3),
         imposter(window_width, window_height, 2),
-        button(window_width, window_height, {0.8, 0.0, 0.0}),
         maze(10, 10, window_width, window_height),
         camera(glm::vec3(0.0, 0.0, 0.0), 20),
-        shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag")
+        shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag"),
+        window_width(window_width), window_height(window_height),
+        number_of_coins(5), number_of_bombs(5)
 {
     shader.use();
-    sprite_list.push_back(&player.sprite);
-    sprite_list.push_back(&imposter.sprite);
-    sprite_list.push_back(&maze.sprite);
-//    sprite_list.push_back(&button.sprite);
 
+    // initialize buttons
+    buttons = {Button(window_width, window_height), Button(window_width, window_height)};
+    buttons[0].moveTo(maze.getRandomPosition());
+    buttons[1].moveTo(maze.getRandomPosition());
+
+    // initialize player
     player.setInitialPosition(maze.getRandomCell());
+    camera.moveAndFocus(player.sprite.getPosition());
+
+    // initialize imposter
     imposter.setInitialPosition(maze.getRandomCell());
     imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+}
 
-    camera.moveAndFocus(player.sprite.getPosition());
+bool Game::isGameOver() const
+{
+    return game_over;
 }
 
 void Game::renderSprites()
 {
+    std::vector<Sprite*> sprite_list = {&maze.sprite, &player.sprite};
+    if (imposter.isAlive())
+        sprite_list.push_back(&imposter.sprite);
+
+    for (auto &button : buttons)
+        sprite_list.push_back(&button.sprite);
+    for (auto &coin : coins)
+        sprite_list.push_back(&coin.sprite);
+    for (auto &bomb : bombs)
+        sprite_list.push_back(&bomb.sprite);
+
     for (auto &sprite : sprite_list)
     {
         // load transformation matrix of sprite into shader
@@ -43,7 +63,9 @@ void Game::renderSprites()
 void Game::moveSprites(Window &window, float render_time)
 {
     movePlayer(window, render_time);
-    moveImposter(render_time);
+
+    if (imposter.isAlive())
+        moveImposter(render_time);
 }
 
 void Game::moveImposter(float render_time)
@@ -117,9 +139,65 @@ void Game::movePlayer(Window &window, float render_time)
 
             // if player active cell changes, update imposter path
             if (player.updateActiveCell(maze.findNextCell(player.active_cell, pos)))
-                imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+                if (imposter.isAlive())
+                    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
 
             camera.moveAndFocus(pos);
+        }
+    }
+}
+
+void Game::handleCollisions()
+{
+    if (imposter.isAlive() && checkCollision(player.b_box, imposter.b_box))
+    {
+        game_over = true;
+        return;
+    }
+
+    if (!buttons[0].isPressed() && checkCollision(buttons[0].b_box, player.b_box))
+    {
+        buttons[0].press();
+        imposter.kill();
+    }
+    else if (!buttons[1].isPressed() && checkCollision(buttons[1].b_box, player.b_box))
+    {
+        buttons[1].press();
+        for (int i=0; i<number_of_coins; i++)
+        {
+            Coin coin(window_width, window_height);
+            coin.moveTo(maze.getRandomPosition());
+            coins.push_back(std::move(coin));
+        }
+        for (int i=0; i<number_of_bombs; i++)
+        {
+            Bomb bomb(window_width, window_height);
+            bomb.moveTo(maze.getRandomPosition());
+            bombs.push_back(std::move(bomb));
+        }
+    }
+    else
+    {
+        // check coin collision
+        for (auto it=coins.begin(); it!=coins.end(); it++)
+        {
+            if (checkCollision(it->b_box, player.b_box))
+            {
+                score += 10;
+                coins.erase(it);
+                return;
+            }
+        }
+
+        // check bomb collision
+        for (auto it=bombs.begin(); it!=bombs.end(); it++)
+        {
+            if (checkCollision(it->b_box, player.b_box))
+            {
+                score -= 10;
+                bombs.erase(it);
+                return;
+            }
         }
     }
 }
@@ -146,4 +224,10 @@ bool Game::checkTopCollision(bounding_box &b1, bounding_box &b2) const
 bool Game::checkBottomCollision(bounding_box &b1, bounding_box &b2) const
 {
     return (abs(b2.y - (b1.y - b1.height)) <= collision_threshold) && (b2.x + b2.width >= b1.x && b2.x <= b1.x + b1.width);
+}
+
+// any collision (overlap of bounding boxes)
+bool Game::checkCollision(bounding_box& b1, bounding_box& b2)
+{
+    return (b2.y - b2.height <= b1.y && b2.y >= b1.y - b1.height) && (b2.x + b2.width >= b1.x && b2.x <= b1.x + b1.width);
 }

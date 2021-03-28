@@ -22,6 +22,7 @@ public:
 
     // other functions
     std::pair<int, glm::vec3> getRandomCell();
+    glm::vec3 getRandomPosition();
     std::pair<int, glm::vec3> findNextCell(std::pair<int, glm::vec3> active_cell, glm::vec3 position) const;
     std::vector<std::pair<int, glm::vec3>> findShortestPath(int start, int finish);
 

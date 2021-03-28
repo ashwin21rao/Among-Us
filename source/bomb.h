@@ -1,25 +1,21 @@
-#ifndef _BUTTON_H
-#define _BUTTON_H
+#ifndef _BOMB_H
+#define _BOMB_H
 
 #include "sprite.h"
 #include "util.h"
 
-class Button
+class Bomb
 {
 public:
-    Button(int window_width, int window_height);
+    Bomb(int window_width, int window_height);
     Sprite sprite;
 
     void moveTo(glm::vec3 position);
-    void press();
-    bool isPressed() const;
 
     bounding_box b_box;
 
 private:
     std::pair<std::vector<float>, int> generateVertexData();
-    std::vector<float> color;
-    bool pressed;
 };
 
 

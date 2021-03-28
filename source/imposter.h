@@ -14,9 +14,13 @@ public:
 
     std::pair<int, glm::vec3> next_cell;
 
+    void kill();
+    bool isAlive() const;
+
 private:
     std::vector<std::pair<int, glm::vec3>> path_to_player;
     int current_pos;  // current position in path
+    bool dead = false;
 };
 
 
