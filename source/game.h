@@ -48,7 +48,7 @@ private:
     bool checkBottomCollision(bounding_box &b1, bounding_box &b2) const;
     static bool checkCollision(bounding_box &b1, bounding_box &b2) ;
 
-    float collision_threshold = 0.03;
+    float collision_threshold = 0.05;
     int number_of_coins, number_of_bombs;
     int window_width, window_height;
 

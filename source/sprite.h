@@ -15,7 +15,9 @@ public:
     void render() const;
     void setViewMatrix(glm::mat4 new_view_matrix);
     void moveTo(glm::vec3 position);
+
     glm::vec3 getPosition() const;
+    void setCenter(glm::vec3 center);
 
     glm::vec3 initial_position;
 

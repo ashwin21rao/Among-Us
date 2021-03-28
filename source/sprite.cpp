@@ -69,3 +69,8 @@ glm::vec3 Sprite::getPosition() const
 {
     return glm::vec3(translation_matrix * glm::vec4(initial_position, 1.0));
 }
+
+void Sprite::setCenter(glm::vec3 center)
+{
+    initial_position = center;
+}

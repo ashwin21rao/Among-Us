@@ -51,6 +51,7 @@ std::pair<std::vector<float>, int> Character::generateVertexData()
     num_vertices += generateCircle(body_w / 2, 0, body_h / 2, vertices, colors[0]);
 
     b_box = {-body_w / 2 - backpack_w / 2, body_h / 2 + helmet_r / 2, body_w + backpack_w, body_h + helmet_r};
+    sprite.setCenter(glm::vec3(-backpack_w / 2, helmet_r / 2, 0.0));
 
     return {vertices, num_vertices};
 }
