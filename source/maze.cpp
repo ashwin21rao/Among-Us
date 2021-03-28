@@ -189,10 +189,10 @@ std::vector<std::pair<int, glm::vec3>> Maze::findShortestPath(int start, int fin
 
     std::reverse(path.begin(), path.end());
 
-    std::cout << "Hereeeeee" << std::endl;
-    for (auto i : path)
-        std::cout << i.first << " ";
-    std::cout << std::endl;
+//    std::cout << "Hereeeeee" << std::endl;
+//    for (auto i : path)
+//        std::cout << i.first << " ";
+//    std::cout << std::endl;
 
     return path;
 }
@@ -234,7 +234,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x + cell_size/2 + t, y + cell_size/2 + cell_thickness + p, 0.0f,
                                                 x + cell_size/2 + t, y + cell_size/2, 0.0f,
                                                 x - cell_size/2 - t, y + cell_size/2, 0.0f,},
-                                     (vertex_num == exit_cell_num && exit_cell_num == 0) ? exit_color : wall_color);
+                                     (vertex_num == exit_cell.first && exit_cell.first == 0) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p,
@@ -249,7 +249,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x + cell_size/2 + cell_thickness + p, y + cell_size/2 + t, 0.0f,
                                                 x + cell_size/2 + cell_thickness + p,  y - cell_size/2 - t, 0.0f,
                                                 x + cell_size/2,  y - cell_size/2 - t, 0.0f},
-                                     (vertex_num == exit_cell_num && exit_cell_num == number_of_cells - 1) ? exit_color : wall_color);
+                                     (vertex_num == exit_cell.first && exit_cell.first == number_of_cells - 1) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x + cell_size/2, y + cell_size/2 + t, cell_thickness + p, cell_size + 2 * t});
@@ -263,7 +263,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x + cell_size/2 + t, y - cell_size/2, 0.0f,
                                                 x + cell_size/2 + t, y - cell_size/2 - cell_thickness - p, 0.0f,
                                                 x - cell_size/2 - t, y - cell_size/2 - cell_thickness - p, 0.0f},
-                                     (vertex_num == exit_cell_num && exit_cell_num == number_of_cells - 1) ? exit_color : wall_color);
+                                     (vertex_num == exit_cell.first && exit_cell.first == number_of_cells - 1) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x - cell_size/2 - t, y - cell_size/2, cell_size + 2 * t, cell_thickness + p});
@@ -277,7 +277,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
                                                 x - cell_size/2, y + cell_size/2 + t, 0.0f,
                                                 x - cell_size/2,  y - cell_size/2 - t, 0.0f,
                                                 x - cell_size/2 - cell_thickness - p,  y - cell_size/2 - t, 0.0f},
-                                     (vertex_num == exit_cell_num && exit_cell_num == 0) ? exit_color : wall_color);
+                                     (vertex_num == exit_cell.first && exit_cell.first == 0) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t,
@@ -326,7 +326,7 @@ void Maze::openExit()
 {
     std::mt19937_64 gen(random_device());
     std::uniform_int_distribution<int> random_exit(0, 1);
-    exit_cell_num = random_exit(gen) == 0 ? 0 : number_of_cells - 1;
+    exit_cell = random_exit(gen) == 0 ? cells[0] : cells[number_of_cells - 1];
 
     std::pair<std::vector<float>, int> vertex_data = generateVertexData();
     sprite.createSprite(vertex_data.first, sizeof(float) * vertex_data.first.size(), vertex_data.second);

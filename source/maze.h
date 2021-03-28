@@ -16,7 +16,7 @@ public:
 
     // dimensions of maze cells
     float cell_size, cell_thickness;
-    int exit_cell_num = -1;
+    std::pair<int, glm::vec3> exit_cell = {-1, glm::vec3(0.0)};
 
     // walls of maze
     std::vector<bounding_box> walls;

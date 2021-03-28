@@ -100,23 +100,9 @@ void Game::moveImposter(float render_time)
 
     glm::vec3 pos = imposter.sprite.getPosition();
 
-    // if imposter moves to position of next cell
     glm::vec3 p = glm::epsilonEqual(imposter.sprite.getPosition(), imposter.next_cell.second, glm::vec3(0.05));
-//    std::cout << p.x << " " << p.y << std::endl;
-
     if (p.x && p.y)
-    {
-//        std::cout << "Hereeee" << std::endl;
-//        std::cout << imposter.active_cell.second.x << " " << imposter.active_cell.second.y << std::endl;
-//        std::cout << imposter.next_cell.second.x << " " << imposter.next_cell.second.y << std::endl;
         imposter.updateActiveCell(imposter.next_cell);
-    }
-//    imposter.updateActiveCell(maze.findNextCell(imposter.active_cell, imposter.sprite.getPosition()));
-
-    // if active cell of imposter changes, update path position
-
-    // find next cell of imposter
-//    maze.findShortestPath(imposter.active_cell, player.active_cell);
 }
 
 void Game::movePlayer(Window &window, float render_time)
@@ -168,8 +154,12 @@ void Game::movePlayer(Window &window, float render_time)
             {
                 if (imposter.isAlive())
                     imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+            }
 
-                if (player.active_cell.first == maze.exit_cell_num)
+            if (player.active_cell.first == maze.exit_cell.first)
+            {
+                glm::vec3 p = glm::epsilonEqual(player.sprite.getPosition(), maze.exit_cell.second, glm::vec3(0.3));
+                if (p.x && p.y)
                     game_won = true;
             }
 
