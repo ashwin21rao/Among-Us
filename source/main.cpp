@@ -28,7 +28,7 @@ int main()
     float last_frame_timestamp = 0.0, current_frame_timestamp;
 
     // render loop
-    while (!glfwWindowShouldClose(window.window) && !game.isGameOver())
+    while (!glfwWindowShouldClose(window.window) && !game.gameOver() && !game.gameWon())
     {
         current_frame_timestamp = (float)glfwGetTime();
 

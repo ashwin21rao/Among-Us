@@ -216,6 +216,8 @@ std::pair<std::vector<float>, int> Maze::generateVertexData()
 int Maze::createCell(int r, int c, std::vector<float> &vertices)
 {
     int vertex_num = width * r + c;
+    std::vector<float> exit_color = {0.0, 0.81, 0.08};
+
     std::vector<int> adj_cells = mazeGraph[vertex_num];
 
     auto x = (2 * cell_thickness + cell_size) * (float)c;
@@ -231,7 +233,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p, 0.0f,
                                                 x + cell_size/2 + t, y + cell_size/2 + cell_thickness + p, 0.0f,
                                                 x + cell_size/2 + t, y + cell_size/2, 0.0f,
-                                                x - cell_size/2 - t, y + cell_size/2, 0.0f,}, wall_color);
+                                                x - cell_size/2 - t, y + cell_size/2, 0.0f,},
+                                     (vertex_num == exit_cell_num && exit_cell_num == 0) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x - cell_size/2 - t, y + cell_size/2 + cell_thickness + p,
@@ -245,7 +248,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x + cell_size/2, y + cell_size/2 + t, 0.0f,
                                                 x + cell_size/2 + cell_thickness + p, y + cell_size/2 + t, 0.0f,
                                                 x + cell_size/2 + cell_thickness + p,  y - cell_size/2 - t, 0.0f,
-                                                x + cell_size/2,  y - cell_size/2 - t, 0.0f}, wall_color);
+                                                x + cell_size/2,  y - cell_size/2 - t, 0.0f},
+                                     (vertex_num == exit_cell_num && exit_cell_num == number_of_cells - 1) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x + cell_size/2, y + cell_size/2 + t, cell_thickness + p, cell_size + 2 * t});
@@ -258,7 +262,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x - cell_size/2 - t, y - cell_size/2, 0.0f,
                                                 x + cell_size/2 + t, y - cell_size/2, 0.0f,
                                                 x + cell_size/2 + t, y - cell_size/2 - cell_thickness - p, 0.0f,
-                                                x - cell_size/2 - t, y - cell_size/2 - cell_thickness - p, 0.0f,}, wall_color);
+                                                x - cell_size/2 - t, y - cell_size/2 - cell_thickness - p, 0.0f},
+                                     (vertex_num == exit_cell_num && exit_cell_num == number_of_cells - 1) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x - cell_size/2 - t, y - cell_size/2, cell_size + 2 * t, cell_thickness + p});
@@ -271,7 +276,8 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
         generateTrianglesFromPolygon(vertices, {x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t, 0.0f,
                                                 x - cell_size/2, y + cell_size/2 + t, 0.0f,
                                                 x - cell_size/2,  y - cell_size/2 - t, 0.0f,
-                                                x - cell_size/2 - cell_thickness - p,  y - cell_size/2 - t, 0.0f}, wall_color);
+                                                x - cell_size/2 - cell_thickness - p,  y - cell_size/2 - t, 0.0f},
+                                     (vertex_num == exit_cell_num && exit_cell_num == 0) ? exit_color : wall_color);
 
         num_vertices += 6;
         walls.push_back({x - cell_size/2 - cell_thickness - p, y + cell_size/2 + t,
@@ -286,7 +292,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
 std::pair<int, glm::vec3> Maze::getRandomCell()
 {
     std::mt19937_64 gen(random_device());
-    std::uniform_int_distribution<int> random_cell(0, number_of_cells);
+    std::uniform_int_distribution<int> random_cell(1, number_of_cells - 1);
 
     return cells[random_cell(gen)];
 }
@@ -314,4 +320,14 @@ std::pair<int, glm::vec3> Maze::findNextCell(std::pair<int, glm::vec3> active_ce
         return cells[active_cell.first - 1];
 
     return active_cell;
+}
+
+void Maze::openExit()
+{
+    std::mt19937_64 gen(random_device());
+    std::uniform_int_distribution<int> random_exit(0, 1);
+    exit_cell_num = random_exit(gen) == 0 ? 0 : number_of_cells - 1;
+
+    std::pair<std::vector<float>, int> vertex_data = generateVertexData();
+    sprite.createSprite(vertex_data.first, sizeof(float) * vertex_data.first.size(), vertex_data.second);
 }

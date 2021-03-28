@@ -16,6 +16,7 @@ public:
 
     // dimensions of maze cells
     float cell_size, cell_thickness;
+    int exit_cell_num = -1;
 
     // walls of maze
     std::vector<bounding_box> walls;
@@ -25,6 +26,7 @@ public:
     glm::vec3 getRandomPosition();
     std::pair<int, glm::vec3> findNextCell(std::pair<int, glm::vec3> active_cell, glm::vec3 position) const;
     std::vector<std::pair<int, glm::vec3>> findShortestPath(int start, int finish);
+    void openExit();
 
 private:
     int number_of_cells;

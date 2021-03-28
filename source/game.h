@@ -31,7 +31,8 @@ public:
     void moveSprites(Window &window, float render_time);
     void renderSprites();
     void handleCollisions();
-    bool isGameOver() const;
+    bool gameOver() const;
+    bool gameWon() const;
 
 private:
     void movePlayer(Window &window, float render_time);
@@ -49,6 +50,7 @@ private:
 
     int score = 0;
     bool game_over = false;
+    bool game_won = false;
 };
 
 #endif

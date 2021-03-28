@@ -31,9 +31,14 @@ Game::Game(int window_width, int window_height) :
     imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
 }
 
-bool Game::isGameOver() const
+bool Game::gameOver() const
 {
     return game_over;
+}
+
+bool Game::gameWon() const
+{
+    return game_won;
 }
 
 void Game::renderSprites()
@@ -139,8 +144,14 @@ void Game::movePlayer(Window &window, float render_time)
 
             // if player active cell changes, update imposter path
             if (player.updateActiveCell(maze.findNextCell(player.active_cell, pos)))
+            {
                 if (imposter.isAlive())
                     imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+
+                if (player.active_cell.first == maze.exit_cell_num)
+                    game_won = true;
+            }
+
 
             camera.moveAndFocus(pos);
         }
@@ -159,6 +170,9 @@ void Game::handleCollisions()
     {
         buttons[0].press();
         imposter.kill();
+
+        if (buttons[1].isPressed())
+            maze.openExit();
     }
     else if (!buttons[1].isPressed() && checkCollision(buttons[1].b_box, player.b_box))
     {
@@ -175,6 +189,9 @@ void Game::handleCollisions()
             bomb.moveTo(maze.getRandomPosition());
             bombs.push_back(std::move(bomb));
         }
+
+        if (buttons[0].isPressed())
+            maze.openExit();
     }
     else
     {
