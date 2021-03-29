@@ -34,7 +34,17 @@ Game::Game(int window_width, int window_height) :
                Shader("../source/vertex_shaders/light_shader.vert", "../source/fragment_shaders/light_shader.frag")};
 
     shaders[1].use();
-    shaders[1].setVec3(glm::vec3(1.0f, 1.0f, 1.0f), "lightColor");
+    shaders[1].setVec3(glm::vec3(0.1f, 0.1f, 0.1f), "light.ambient");
+    shaders[1].setVec3(glm::vec3(1.0f, 1.0f, 1.0f), "light.diffuse");
+    shaders[1].setVec3(glm::vec3(1.0f, 1.0f, 1.0f), "light.specular");
+
+    shaders[1].setVec3(glm::vec3(0.0f, 0.0f, -1.0f), "light.direction");
+    shaders[1].setFloat(glm::cos(glm::radians(25.0f)), "light.cutOff");
+    shaders[1].setFloat(glm::cos(glm::radians(45.0f)), "light.outerCutOff");
+
+    shaders[1].setFloat(1.0f, "light.constant");
+    shaders[1].setFloat(0.09f, "light.linear");
+    shaders[1].setFloat(0.032f, "light.quadratic");
 }
 
 bool Game::gameOver() const
@@ -62,11 +72,11 @@ void Game::processInput(Window &window)
         lights_off = !lights_off;
         if (lights_off)
         {
-            glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
             glm::vec3 pos = player.sprite.getPosition();
             shaders[1].use();
-            shaders[1].setVec3(glm::vec3(pos.x, pos.y, 0.5), "lightPos");
+            shaders[1].setVec3(glm::vec3(pos.x, pos.y, 1.0), "light.position");
             shaders[1].setVec3(pos, "viewPos");
         }
         else
@@ -206,7 +216,7 @@ void Game::movePlayer(Window &window, float render_time)
             if (lights_off)
             {
                 shaders[1].use();
-                shaders[1].setVec3(glm::vec3(pos.x, pos.y, 0.5), "lightPos");
+                shaders[1].setVec3(glm::vec3(pos.x, pos.y, 1.0), "light.position");
                 shaders[1].setVec3(pos, "viewPos");
             }
         }

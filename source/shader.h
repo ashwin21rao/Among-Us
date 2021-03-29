@@ -11,8 +11,9 @@ class Shader
 public:
     Shader(const char *vertex_shader_path, const char *fragment_shader_path);
     void use() const;
-    void setMat4(glm::mat4 transformation_matrix, const char *matrix_name) const;
-    void setVec3(glm::vec3 color, const char *color_name) const;
+    void setMat4(glm::mat4 matrix, const char *var_name) const;
+    void setVec3(glm::vec3 vec, const char *var_name) const;
+    void setFloat(float val, const char *var_name) const;
     unsigned int shader_id;
 
 private:

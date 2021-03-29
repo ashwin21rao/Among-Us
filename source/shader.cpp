@@ -90,12 +90,17 @@ void Shader::use() const
     glUseProgram(shader_id);
 }
 
-void Shader::setMat4(glm::mat4 transformation_matrix, const char *matrix_name) const
+void Shader::setMat4(glm::mat4 matrix, const char *var_name) const
 {
-    glUniformMatrix4fv(glGetUniformLocation(shader_id, matrix_name), 1, GL_FALSE, glm::value_ptr(transformation_matrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader_id, var_name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void Shader::setVec3(glm::vec3 color, const char *color_name) const
+void Shader::setVec3(glm::vec3 vec, const char *var_name) const
 {
-    glUniform3f(glGetUniformLocation(shader_id, color_name), color.r, color.g, color.b);
+    glUniform3f(glGetUniformLocation(shader_id, var_name), vec.x, vec.y, vec.z);
+}
+
+void Shader::setFloat(float val, const char *var_name) const
+{
+    glUniform1f(glGetUniformLocation(shader_id, var_name), val);
 }
