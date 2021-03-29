@@ -35,8 +35,8 @@ int main()
     // render loop
     while (!glfwWindowShouldClose(window.window))
     {
-//        if (game.gameOver() || game.gameWon())
-//            break;
+        if (game.gameOver() || game.gameWon())
+            break;
 
         current_frame_timestamp = (float)glfwGetTime();
 

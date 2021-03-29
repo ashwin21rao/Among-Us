@@ -100,7 +100,7 @@ void Maze::generateMazeGraph()
     // add random edges
     std::uniform_int_distribution<int> random_cell(0, number_of_cells);
     int i = 0;
-    while (i < 10)
+    while (i < 20)
     {
         int cell = random_cell(gen);
         std::uniform_int_distribution<int> random_edge(0, 3);

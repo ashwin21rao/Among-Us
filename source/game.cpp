@@ -9,8 +9,8 @@
 Game::Game(int window_width, int window_height) :
         player(window_width, window_height, 3),
         imposter(window_width, window_height, 2),
-        maze(10, 10, window_width, window_height),
-        camera(glm::vec3(0.0, 0.0, 0.0), 4),
+        maze(15, 15, window_width, window_height),
+        camera(glm::vec3(0.0, 0.0, 0.0), 15),
         th(window_width, window_height),
         window_width(window_width), window_height(window_height),
         number_of_coins(5), number_of_bombs(5),
@@ -27,7 +27,7 @@ Game::Game(int window_width, int window_height) :
 
     // initialize imposter
     imposter.setInitialPosition(maze.getRandomCell());
-    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first), maze.width);
 
     // initialize shaders
     shaders = {Shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag"),
@@ -145,8 +145,6 @@ void Game::moveImposter(float render_time)
 {
     imposter.move(maze.width, render_time);
 
-    glm::vec3 pos = imposter.sprite.getPosition();
-
     glm::vec3 p = glm::epsilonEqual(imposter.sprite.getPosition(), imposter.next_cell.second, glm::vec3(0.05));
     if (p.x && p.y)
         imposter.updateActiveCell(imposter.next_cell);
@@ -200,7 +198,7 @@ void Game::movePlayer(Window &window, float render_time)
             if (player.updateActiveCell(maze.findNextCell(player.active_cell, pos)))
             {
                 if (imposter.isAlive())
-                    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+                    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first), maze.width);
             }
 
             if (player.active_cell.first == maze.exit_cell.first)
