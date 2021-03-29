@@ -39,6 +39,9 @@ private:
 
     // cells of maze
     std::vector<std::pair<int, glm::vec3>> cells;
+    std::vector<int> random_cell_nums;
+    int random_cell_pos = 0;
+
     std::vector<float> wall_color = {0.25, 0.25, 0.25};
 
     // generating maze graph

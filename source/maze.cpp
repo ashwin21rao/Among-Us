@@ -14,6 +14,12 @@ Maze::Maze(int width, int height, int window_width, int window_height): width(wi
     cell_thickness = 0.05;
     number_of_cells = width * height;
 
+    // shuffled list of cell numbers to randomly choose cells
+    random_cell_nums.resize(number_of_cells);
+    std::iota(random_cell_nums.begin(), random_cell_nums.end(), 0);
+    std::mt19937_64 gen(random_device());
+    std::shuffle(random_cell_nums.begin(), random_cell_nums.end(), gen);
+    
     generateMazeGraph();
     std::pair<std::vector<float>, int> vertex_data = generateVertexData();
 
@@ -98,9 +104,9 @@ void Maze::generateMazeGraph()
 //    }
 
     // add random edges
-    std::uniform_int_distribution<int> random_cell(0, number_of_cells);
+    std::uniform_int_distribution<int> random_cell(0, number_of_cells - 1);
     int i = 0;
-    while (i < 20)
+    while (i < 25)
     {
         int cell = random_cell(gen);
         std::uniform_int_distribution<int> random_edge(0, 3);
@@ -210,6 +216,10 @@ std::pair<std::vector<float>, int> Maze::generateVertexData()
         }
     }
 
+    // shuffle cells vector
+//    std::mt19937_64 gen(random_device());
+//    std::shuffle(cells.begin(), cells.end(), gen);
+
     return {vertices, num_vertices};
 }
 
@@ -291,10 +301,7 @@ int Maze::createCell(int r, int c, std::vector<float> &vertices)
 
 std::pair<int, glm::vec3> Maze::getRandomCell()
 {
-    std::mt19937_64 gen(random_device());
-    std::uniform_int_distribution<int> random_cell(1, number_of_cells - 1);
-
-    return cells[random_cell(gen)];
+    return cells[random_cell_nums[random_cell_pos++]];
 }
 
 glm::vec3 Maze::getRandomPosition()

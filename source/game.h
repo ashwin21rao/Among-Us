@@ -58,6 +58,7 @@ private:
     bool game_over = false;
     bool game_won = false;
     bool lights_off = false;
+    double dark_start_time;
 };
 
 #endif

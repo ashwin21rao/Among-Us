@@ -13,8 +13,8 @@ Game::Game(int window_width, int window_height) :
         camera(glm::vec3(0.0, 0.0, 0.0), 15),
         th(window_width, window_height),
         window_width(window_width), window_height(window_height),
-        number_of_coins(5), number_of_bombs(5),
-        start_time(glfwGetTime()), total_time(60)
+        number_of_coins(10), number_of_bombs(10),
+        start_time(glfwGetTime()), total_time(120)
 {
     // initialize buttons
     buttons = {Button(window_width, window_height), Button(window_width, window_height)};
@@ -78,9 +78,16 @@ void Game::processInput(Window &window)
             shaders[1].use();
             shaders[1].setVec3(glm::vec3(pos.x, pos.y, 1.0), "light.position");
             shaders[1].setVec3(pos, "viewPos");
+
+            dark_start_time = glfwGetTime();
         }
         else
+        {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+            // add to score the number of seconds spent in dark mode / 3
+            score += (int)(glfwGetTime() - dark_start_time) / 3;
+        }
 
         space_pressed = true;
     }
