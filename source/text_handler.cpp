@@ -13,7 +13,7 @@ TextHandler::TextHandler(int window_width, int window_height)
 
     glm::mat4 projection_matrix = glm::ortho(0.0f, (float)window_width, 0.0f, (float)window_height);
     shader.use();
-    shader.transform(projection_matrix, "trans_matrix");
+    shader.setMat4(projection_matrix, "trans_matrix");
 }
 
 void TextHandler::initFont()
@@ -107,7 +107,7 @@ void TextHandler::renderText(std::string text, float x, float y, float scale, gl
 {
     // activate corresponding render state
     shader.use();
-    shader.setColor(color, "text_color");
+    shader.setVec3(color, "text_color");
 //    glUniform3f(glGetUniformLocation(shader.shader_id, "textColor"), color.x, color.y, color.z);
 
     glActiveTexture(GL_TEXTURE0);

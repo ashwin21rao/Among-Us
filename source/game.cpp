@@ -11,7 +11,7 @@ Game::Game(int window_width, int window_height) :
         imposter(window_width, window_height, 2),
         maze(10, 10, window_width, window_height),
         camera(glm::vec3(0.0, 0.0, 0.0), 4),
-        shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag"),
+        shader("../source/vertex_shaders/light_shader.vert", "../source/fragment_shaders/light_shader.frag"),
         th(window_width, window_height),
         window_width(window_width), window_height(window_height),
         number_of_coins(5), number_of_bombs(5),
@@ -61,13 +61,21 @@ void Game::renderSprites()
     for (auto &bomb : bombs)
         sprite_list.push_back(&bomb.sprite);
 
+    glm::vec3 pos = player.sprite.getPosition();
+
     shader.use();
+    shader.setVec3(glm::vec3(1.0f, 1.0f, 1.0f), "lightColor");
+    shader.setVec3(glm::vec3(pos.x, pos.y, 0.5), "lightPos");
+    shader.setVec3(pos, "viewPos");
 
     for (auto &sprite : sprite_list)
     {
         // load transformation matrix of sprite into shader
         sprite->setViewMatrix(camera.getViewMatrix());
-        shader.transform(sprite->transformation_matrix, "trans_matrix");
+        shader.setMat4(sprite->projection_matrix, "projection");
+        shader.setMat4(sprite->view_matrix, "view");
+        shader.setMat4(sprite->model_matrix, "model");
+//        shader.setMat4(sprite->transformation_matrix, "trans_matrix");
 
         // render sprite
         sprite->render();

@@ -14,6 +14,7 @@ public:
     void moveAndFocus(glm::vec3 new_target);
     glm::mat4 getViewMatrix();
     std::vector<glm::vec3> getAxes();
+    glm::vec3 getPosition();
 
 private:
     float speed, zoom;

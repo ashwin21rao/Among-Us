@@ -61,3 +61,8 @@ std::vector<glm::vec3> Camera::getAxes()
 {
     return std::vector<glm::vec3>({x_axis, y_axis, z_axis});
 }
+
+glm::vec3 Camera::getPosition()
+{
+    return position;
+}
