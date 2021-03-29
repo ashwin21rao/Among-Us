@@ -24,7 +24,6 @@ int main()
 
     // set background color
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-//    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
     // create game object
     Game game(window.width, window.height);
@@ -33,10 +32,50 @@ int main()
     float last_frame_timestamp = 0.0, current_frame_timestamp;
 
     // render loop
+    bool started = false, done = false;
     while (!glfwWindowShouldClose(window.window))
     {
-        if (game.gameOver() || game.gameWon())
-            break;
+        if (!done && (game.gameOver() || game.gameWon()))
+            done = true;
+
+        if (!started)
+        {
+            current_frame_timestamp = (float)glfwGetTime();
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            if (game.showStartScreen(window))
+            {
+                started = true;
+                done = false;
+                game.start();
+            }
+
+            glfwSwapBuffers(window.window);
+            glfwPollEvents();
+            last_frame_timestamp = current_frame_timestamp;
+
+            continue;
+        }
+
+        if (done)
+        {
+            current_frame_timestamp = (float)glfwGetTime();
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            if (game.showEndScreen(window))
+            {
+                started = false;
+                done = false;
+            }
+
+            glfwSwapBuffers(window.window);
+            glfwPollEvents();
+            last_frame_timestamp = current_frame_timestamp;
+
+            continue;
+        }
 
         current_frame_timestamp = (float)glfwGetTime();
 

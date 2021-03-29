@@ -15,6 +15,7 @@ public:
     std::pair<int, glm::vec3> next_cell;
 
     void kill();
+    void revive();
     bool isAlive() const;
 
 private:

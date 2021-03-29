@@ -30,13 +30,16 @@ public:
     std::vector<Shader> shaders;
     TextHandler th;
 
+    bool showStartScreen(Window &window);
+    bool showEndScreen(Window &window);
+    void start();
     void processInput(Window &window);
     void moveSprites(Window &window, float render_time);
     void renderSprites();
     void tick();
     void handleCollisions();
-    bool gameOver() const;
-    bool gameWon() const;
+    bool gameOver();
+    bool gameWon();
 
 private:
     void movePlayer(Window &window, float render_time);
@@ -53,11 +56,11 @@ private:
     int number_of_coins, number_of_bombs;
     int window_width, window_height;
 
-    int score = 0;
+    int score;
     double start_time, time_elapsed, total_time;
-    bool game_over = false;
-    bool game_won = false;
-    bool lights_off = false;
+    bool game_over;
+    bool game_won;
+    bool lights_off;
     double dark_start_time;
 };
 

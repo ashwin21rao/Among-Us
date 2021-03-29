@@ -22,6 +22,7 @@ public:
     std::vector<bounding_box> walls;
 
     // other functions
+    void init();
     std::pair<int, glm::vec3> getRandomCell();
     glm::vec3 getRandomPosition();
     std::pair<int, glm::vec3> findNextCell(std::pair<int, glm::vec3> active_cell, glm::vec3 position) const;
@@ -40,7 +41,7 @@ private:
     // cells of maze
     std::vector<std::pair<int, glm::vec3>> cells;
     std::vector<int> random_cell_nums;
-    int random_cell_pos = 0;
+    int random_cell_pos;
 
     std::vector<float> wall_color = {0.25, 0.25, 0.25};
 
@@ -52,8 +53,6 @@ private:
     // generating maze from graph
     std::pair<std::vector<float>, int> generateVertexData();
     int createCell(int r, int c, std::vector<float> &vertices);
-
-    // other functions
 };
 
 #endif

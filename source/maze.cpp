@@ -1,7 +1,6 @@
 #include "maze.h"
 #include <vector>
 #include <algorithm>
-#include <iostream>
 #include <random>
 #include <queue>
 #include "util.h"
@@ -14,22 +13,25 @@ Maze::Maze(int width, int height, int window_width, int window_height): width(wi
     cell_thickness = 0.05;
     number_of_cells = width * height;
 
+    init();
+}
+
+void Maze::init()
+{
+    mazeGraph.clear();
+    cells.clear();
+    walls.clear();
+    exit_cell = {-1, glm::vec3(0.0)};
+
+    generateMazeGraph();
+    std::pair<std::vector<float>, int> vertex_data = generateVertexData();
+
     // shuffled list of cell numbers to randomly choose cells
+    random_cell_pos = 0;
     random_cell_nums.resize(number_of_cells);
     std::iota(random_cell_nums.begin(), random_cell_nums.end(), 0);
     std::mt19937_64 gen(random_device());
     std::shuffle(random_cell_nums.begin(), random_cell_nums.end(), gen);
-    
-    generateMazeGraph();
-    std::pair<std::vector<float>, int> vertex_data = generateVertexData();
-
-//    for (int i=0; i<vertex_data.first.size(); i++)
-//    {
-//        std::cout << vertex_data.first[i] << " ";
-//        if ((i+1) % 6 == 0)
-//            std::cout << std::endl;
-//    }
-//    std::cout << vertex_data.second << std::endl;
 
     sprite.createSprite(vertex_data.first, sizeof(float) * vertex_data.first.size(), vertex_data.second);
 }

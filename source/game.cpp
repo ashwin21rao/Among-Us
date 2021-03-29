@@ -14,20 +14,9 @@ Game::Game(int window_width, int window_height) :
         th(window_width, window_height),
         window_width(window_width), window_height(window_height),
         number_of_coins(10), number_of_bombs(10),
-        start_time(glfwGetTime()), total_time(120)
+        total_time(120)
 {
-    // initialize buttons
-    buttons = {Button(window_width, window_height), Button(window_width, window_height)};
-    buttons[0].moveTo(maze.getRandomPosition());
-    buttons[1].moveTo(maze.getRandomPosition());
-
-    // initialize player
-    player.setInitialPosition(maze.getRandomCell());
-    camera.moveAndFocus(player.sprite.getPosition());
-
-    // initialize imposter
-    imposter.setInitialPosition(maze.getRandomCell());
-    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first), maze.width);
+    start();
 
     // initialize shaders
     shaders = {Shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag"),
@@ -47,13 +36,69 @@ Game::Game(int window_width, int window_height) :
     shaders[1].setFloat(0.032f, "light.quadratic");
 }
 
-bool Game::gameOver() const
+void Game::start()
 {
+    lights_off = false;
+    game_over = false;
+    game_won = false;
+    score = 0;
+    start_time = glfwGetTime();
+
+    // initialize maze
+    maze.init();
+
+    // initialize buttons
+    buttons = {Button(window_width, window_height), Button(window_width, window_height)};
+    buttons[0].moveTo(maze.getRandomPosition());
+    buttons[1].moveTo(maze.getRandomPosition());
+
+    // initialize player
+    player.setInitialPosition(maze.getRandomCell());
+    camera.moveAndFocus(player.sprite.getPosition());
+
+    // initialize imposter
+    imposter.revive();
+    imposter.setInitialPosition(maze.getRandomCell());
+    imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first), maze.width);
+
+    // initialize coins and bombs
+    coins.clear();
+    bombs.clear();
+}
+
+bool Game::showStartScreen(Window &window)
+{
+    th.renderText("AMONG US 2.0", 450, 500, 1.0, glm::vec3(0.0));
+    th.renderText("Press enter to start!", 425, 400, 0.9, glm::vec3(0.0));
+    return glfwGetKey(window.window, GLFW_KEY_ENTER) == GLFW_PRESS;
+}
+
+bool Game::showEndScreen(Window &window)
+{
+    if (game_over)
+        th.renderText("Game Over!", 480, 500, 1.0, glm::vec3(0.0));
+    else if (game_won)
+        th.renderText("You Won!", 500, 500, 1.0, glm::vec3(0.0));
+
+    th.renderText("Score: " + std::to_string(score), 530, 440, 0.7, glm::vec3(0.0));
+    th.renderText("Time remaining: " + std::to_string((int)(total_time - time_elapsed)),
+                  450, 410, 0.7, glm::vec3(0.0));
+
+    th.renderText("Press enter to continue", 390, 340, 0.9, glm::vec3(0.0));
+    return glfwGetKey(window.window, GLFW_KEY_ENTER) == GLFW_PRESS;
+}
+
+bool Game::gameOver()
+{
+    if (game_over && lights_off)
+        score += (int)(glfwGetTime() - dark_start_time) / 3;
     return game_over;
 }
 
-bool Game::gameWon() const
+bool Game::gameWon()
 {
+    if (game_won && lights_off)
+        score += (int)(glfwGetTime() - dark_start_time) / 3;
     return game_won;
 }
 

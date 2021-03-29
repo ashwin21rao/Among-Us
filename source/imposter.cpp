@@ -77,6 +77,11 @@ void Imposter::kill()
     dead = true;
 }
 
+void Imposter::revive()
+{
+    dead = false;
+}
+
 bool Imposter::isAlive() const
 {
     return !dead;
