@@ -1,7 +1,6 @@
 #ifndef _GAME_H
 #define _GAME_H
 #include "shader.h"
-#include "shape.h"
 #include "camera.h"
 #include "maze.h"
 #include "sprite.h"

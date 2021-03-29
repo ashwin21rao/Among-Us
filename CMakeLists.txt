@@ -6,13 +6,13 @@ project(main)
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries")
 set(SOURCES "${SRC_DIR}/main.cpp" "${SRC_DIR}/shader.cpp" "${SRC_DIR}/shader.h"
-            "${SRC_DIR}/shape.cpp" "${SRC_DIR}/shape.h" "${SRC_DIR}/util.cpp" "${SRC_DIR}/util.h"
+            "${SRC_DIR}/util.cpp" "${SRC_DIR}/util.h" "${SRC_DIR}/text_handler.cpp" "${SRC_DIR}/text_handler.h"
             "${SRC_DIR}/camera.cpp" "${SRC_DIR}/camera.h" "${SRC_DIR}/window.cpp" "${SRC_DIR}/window.h"
             "${SRC_DIR}/maze.cpp" "${SRC_DIR}/maze.h" "${SRC_DIR}/sprite.cpp" "${SRC_DIR}/sprite.h"
             "${SRC_DIR}/player.cpp" "${SRC_DIR}/player.h" "${SRC_DIR}/movable_sprite.cpp" "${SRC_DIR}/movable_sprite.h"
             "${SRC_DIR}/game.cpp" "${SRC_DIR}/game.h" "${SRC_DIR}/button.cpp" "${SRC_DIR}/button.h"
             "${SRC_DIR}/character.cpp" "${SRC_DIR}/character.h" "${SRC_DIR}/imposter.cpp" "${SRC_DIR}/imposter.h"
-            "${SRC_DIR}/coin.cpp" "${SRC_DIR}/coin.h" "${SRC_DIR}/bomb.cpp" "${SRC_DIR}/bomb.h" source/text_handler.cpp source/text_handler.h)
+            "${SRC_DIR}/coin.cpp" "${SRC_DIR}/coin.h" "${SRC_DIR}/bomb.cpp" "${SRC_DIR}/bomb.h")
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
