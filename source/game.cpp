@@ -11,7 +11,6 @@ Game::Game(int window_width, int window_height) :
         imposter(window_width, window_height, 2),
         maze(10, 10, window_width, window_height),
         camera(glm::vec3(0.0, 0.0, 0.0), 4),
-        shader("../source/vertex_shaders/light_shader.vert", "../source/fragment_shaders/light_shader.frag"),
         th(window_width, window_height),
         window_width(window_width), window_height(window_height),
         number_of_coins(5), number_of_bombs(5),
@@ -29,6 +28,13 @@ Game::Game(int window_width, int window_height) :
     // initialize imposter
     imposter.setInitialPosition(maze.getRandomCell());
     imposter.updatePath(maze.findShortestPath(imposter.active_cell.first, player.active_cell.first));
+
+    // initialize shaders
+    shaders = {Shader("../source/vertex_shaders/shader.vert", "../source/fragment_shaders/shader.frag"),
+               Shader("../source/vertex_shaders/light_shader.vert", "../source/fragment_shaders/light_shader.frag")};
+
+    shaders[1].use();
+    shaders[1].setVec3(glm::vec3(1.0f, 1.0f, 1.0f), "lightColor");
 }
 
 bool Game::gameOver() const
@@ -48,6 +54,30 @@ void Game::tick()
         game_over = true;
 }
 
+void Game::processInput(Window &window)
+{
+    static bool space_pressed = false;
+    if (!space_pressed && glfwGetKey(window.window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        lights_off = !lights_off;
+        if (lights_off)
+        {
+            glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+
+            glm::vec3 pos = player.sprite.getPosition();
+            shaders[1].use();
+            shaders[1].setVec3(glm::vec3(pos.x, pos.y, 0.5), "lightPos");
+            shaders[1].setVec3(pos, "viewPos");
+        }
+        else
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        space_pressed = true;
+    }
+    else if (space_pressed && glfwGetKey(window.window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+        space_pressed = false;
+}
+
 void Game::renderSprites()
 {
     std::vector<Sprite*> sprite_list = {&maze.sprite, &player.sprite};
@@ -61,21 +91,17 @@ void Game::renderSprites()
     for (auto &bomb : bombs)
         sprite_list.push_back(&bomb.sprite);
 
-    glm::vec3 pos = player.sprite.getPosition();
-
-    shader.use();
-    shader.setVec3(glm::vec3(1.0f, 1.0f, 1.0f), "lightColor");
-    shader.setVec3(glm::vec3(pos.x, pos.y, 0.5), "lightPos");
-    shader.setVec3(pos, "viewPos");
+    Shader current_shader = lights_off ? shaders[1] : shaders[0];
+    current_shader.use();
 
     for (auto &sprite : sprite_list)
     {
         // load transformation matrix of sprite into shader
         sprite->setViewMatrix(camera.getViewMatrix());
-        shader.setMat4(sprite->projection_matrix, "projection");
-        shader.setMat4(sprite->view_matrix, "view");
-        shader.setMat4(sprite->model_matrix, "model");
-//        shader.setMat4(sprite->transformation_matrix, "trans_matrix");
+
+        if (lights_off)
+            current_shader.setMat4(sprite->model_matrix, "model_matrix");
+        current_shader.setMat4(sprite->transformation_matrix, "trans_matrix");
 
         // render sprite
         sprite->render();
@@ -86,12 +112,15 @@ void Game::renderSprites()
 
 void Game::displayText()
 {
-    th.renderText("Score: " + std::to_string(score), 5, (float)window_height - 25, 0.5, glm::vec3(0.0, 0.0, 0.0));
+    glm::vec3 color = (lights_off) ? glm::vec3(1.0) : glm::vec3(0.0);
+
+    th.renderText("Score: " + std::to_string(score), 5, (float)window_height - 25, 0.5, color);
     th.renderText("Time remaining: " + std::to_string((int)(total_time - time_elapsed)),
-                  5, (float)window_height - 50, 0.5, glm::vec3(0.0, 0.0, 0.0));
+                  5, (float)window_height - 50, 0.5, color);
     th.renderText("Tasks left: " + std::to_string(!buttons[0].isPressed() + !buttons[1].isPressed()),
-                  5, (float)window_height - 75, 0.5, glm::vec3(0.0, 0.0, 0.0));
-    th.renderText("Central lighting: On", 5, (float)window_height - 100, 0.5, glm::vec3(0.0, 0.0, 0.0));
+                  5, (float)window_height - 75, 0.5, color);
+    th.renderText("Central lighting: " + std::string(lights_off ? "Off" : "On"),
+                  5, (float)window_height - 100, 0.5, color);
 }
 
 void Game::moveSprites(Window &window, float render_time)
@@ -172,6 +201,14 @@ void Game::movePlayer(Window &window, float render_time)
             }
 
             camera.moveAndFocus(pos);
+
+            // update position of light
+            if (lights_off)
+            {
+                shaders[1].use();
+                shaders[1].setVec3(glm::vec3(pos.x, pos.y, 0.5), "lightPos");
+                shaders[1].setVec3(pos, "viewPos");
+            }
         }
     }
 }
@@ -218,7 +255,7 @@ void Game::handleCollisions()
         {
             if (checkCollision(it->b_box, player.b_box))
             {
-                score += 10;
+                score += lights_off ? 20 : 10;
                 coins.erase(it);
                 return;
             }
@@ -229,7 +266,7 @@ void Game::handleCollisions()
         {
             if (checkCollision(it->b_box, player.b_box))
             {
-                score -= 10;
+                score -= lights_off ? 5 : 10;
                 bombs.erase(it);
                 return;
             }

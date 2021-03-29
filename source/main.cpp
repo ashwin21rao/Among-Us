@@ -5,7 +5,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-void processInput(Window &window, Game &game)
+void processInput(Window &window)
 {
     if (glfwGetKey(window.window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window.window, true);
@@ -23,8 +23,8 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // set background color
-//    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+//    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
     // create game object
     Game game(window.width, window.height);
@@ -35,13 +35,16 @@ int main()
     // render loop
     while (!glfwWindowShouldClose(window.window))
     {
-        if (game.gameOver() || game.gameWon())
-            break;
+//        if (game.gameOver() || game.gameWon())
+//            break;
 
         current_frame_timestamp = (float)glfwGetTime();
 
-        // check for events
-        processInput(window, game);
+        // check for window events
+        processInput(window);
+
+        // process game input
+        game.processInput(window);
 
         // move sprites
         game.moveSprites(window, current_frame_timestamp - last_frame_timestamp);

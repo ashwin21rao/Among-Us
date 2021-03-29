@@ -27,9 +27,10 @@ public:
     std::vector<Bomb> bombs;
 
     Camera camera;
-    Shader shader;
+    std::vector<Shader> shaders;
     TextHandler th;
 
+    void processInput(Window &window);
     void moveSprites(Window &window, float render_time);
     void renderSprites();
     void tick();
@@ -56,6 +57,7 @@ private:
     double start_time, time_elapsed, total_time;
     bool game_over = false;
     bool game_won = false;
+    bool lights_off = false;
 };
 
 #endif
