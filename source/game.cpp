@@ -10,7 +10,7 @@ Game::Game(int window_width, int window_height) :
         player(window_width, window_height, 3),
         imposter(window_width, window_height, 2),
         maze(15, 15, window_width, window_height),
-        camera(glm::vec3(0.0, 0.0, 0.0), 15),
+        camera(glm::vec3(0.0, 0.0, 0.0), 7),
         th(window_width, window_height),
         window_width(window_width), window_height(window_height),
         number_of_coins(10), number_of_bombs(10),
@@ -29,7 +29,7 @@ Game::Game(int window_width, int window_height) :
 
     shaders[1].setVec3(glm::vec3(0.0f, 0.0f, -1.0f), "light.direction");
     shaders[1].setFloat(glm::cos(glm::radians(25.0f)), "light.cutOff");
-    shaders[1].setFloat(glm::cos(glm::radians(45.0f)), "light.outerCutOff");
+    shaders[1].setFloat(glm::cos(glm::radians(50.0f)), "light.outerCutOff");
 
     shaders[1].setFloat(1.0f, "light.constant");
     shaders[1].setFloat(0.09f, "light.linear");
