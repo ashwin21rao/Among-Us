@@ -26,7 +26,7 @@ void TextHandler::initFont()
     }
 
     FT_Face face;
-    if (FT_New_Face(ft, ("../source/assets/fonts/" + font_family).c_str(), 0, &face))
+    if (FT_New_Face(ft, ("../assets/fonts/" + font_family).c_str(), 0, &face))
     {
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
         return;
